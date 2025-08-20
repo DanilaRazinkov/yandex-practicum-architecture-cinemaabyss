@@ -54,7 +54,6 @@ services:
   monolith:
     build:
       context: src/monolith
-      dockerfile: src/monolith/Dockerfile
     container_name: cinemaabyss-monolith
     depends_on:
       - postgres
@@ -70,7 +69,6 @@ services:
   movies-service:
     build:
       context: src/microservices/movies
-      dockerfile: src/microservices/movies/Dockerfile
     container_name: cinemaabyss-movies-service
     depends_on:
       - postgres
