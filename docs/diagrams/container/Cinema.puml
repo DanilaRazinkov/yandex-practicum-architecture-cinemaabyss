@@ -1,0 +1,71 @@
+@startuml
+top to bottom direction
+
+!includeurl https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+Person(user, "Customer", "User of the platform")
+
+System_Boundary(cinema, "Cinema System") {
+
+  System_Boundary(fe, "Frontend") {
+    Container(web, "WEB Application")
+    Container(mobile, "Mobile Application")
+    Container(tv, "TV Application")
+
+    Container(webBff, "WEB BFF")
+    Container(mobileBff, "Mobile BFF")
+    Container(tvBff, "TV BFF")
+  }
+
+  System_Boundary(BackendLayer, "Backend Layer") {
+    Container(gateway, "API Gateway")
+
+    Container(users, "UserService", "GO")
+    Container(movies, "MovieService", "GO")
+    Container(payment, "PaymentService", "GO")
+    Container(recommendation, "RecommendationService", "GO")
+
+    Container(events, "EventsService", "Kotlin")
+
+    Container(kafka, "Kafka")
+    Container(rabbitMq, "RabbitMq")
+
+    ContainerDb(Database, "Postgres")
+  }
+}
+
+Container_Ext(recommendationGenerator, "Recomendation System")
+Container_Ext(paymentGateway, "Payment System")
+
+Rel(user, web, "Using application")
+Rel(user, mobile, "Using application")
+Rel(user, tv, "Using application")
+Rel(web, webBff, "Load WEB data")
+Rel(mobile, mobileBff, "Load Mobile data")
+Rel(tv, tvBff, "Load TV data")
+Rel(webBff, gateway, "Load data")
+Rel(mobileBff, gateway, "Load data")
+Rel(tvBff, gateway, "Load data")
+
+Rel(gateway, users, "Route to users")
+Rel(gateway, movies, "Route to movies")
+Rel(gateway, payment, "Route to payment")
+Rel(gateway, events, "Route to events")
+Rel(gateway, recommendation, "Route to recommendation")
+
+Rel(payment, paymentGateway, "Execute payment operations")
+
+Rel(recommendation, rabbitMq, "Load user's recommendations")
+Rel(rabbitMq, recommendationGenerator, "Push recommendation data")
+
+Rel(users, Database, "Reads/writes users")
+Rel(movies, Database, "Reads/writes movie metainfo")
+Rel(payment, Database, "Reads/writes payment info")
+
+Rel(users, kafka, "Send user's events")
+Rel(movies, kafka, "Send movies events")
+Rel(payment, kafka, "Send payment events")
+
+Rel(kafka, events, "Consume system events")
+
+@enduml
